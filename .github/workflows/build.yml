@@ -34,3 +34,23 @@ jobs:
       uses: Azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Lint - Bicep Check for Syntax error
+    - name: Lint Bicep Error Check
+      uses: azure/CLI@v1
+      with:
+        # azcliversion: 2.30.0
+        inlineScript: |
+          az bicep build --file ./iac/bicep/main.bicep
+    # Bicep Validate
+    - name: Bicep Check
+      uses: azure/CLI@v1
+      with:
+        # azcliversion: 2.30.0
+        inlineScript: |
+          az deployment sub validate \
+            --name ${{ github.run.id }} \
+            --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}" \
+            --template-file ./iac/bicep/main.bicep \
+            --location ${{ secrets.LOCATION }}
+           az logout

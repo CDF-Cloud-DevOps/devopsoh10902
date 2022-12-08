@@ -1,5 +1,5 @@
 #Workflow Name
-name: PR-IaC(Bicep)
+name: PR-IaC(Bicep) Validation
 
 on:
   pull_request:

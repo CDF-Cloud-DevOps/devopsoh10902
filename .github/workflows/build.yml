@@ -1,0 +1,36 @@
+#Workflow Name
+name: PR-IaC(Bicep)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "iac/bicep/**"
+  # For Manual trigger
+  workflow_dispatch:
+jobs:
+  validation_job:
+    name: "Validation Job for Bicep Infra 1"
+    runs-on: ubuntu-latest
+    steps:
+    
+    #Checkout Code
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    # Get RESOURCES_PREFIX based on the repo name
+    - name: Get repo name
+      # actions/github-script@v6 is breaking change which is node16
+      uses: actions/github-script@v5
+      id: resources_prefix
+      with:
+          result-encoding: string
+          script: return context.repo.repo.toLowerCase()
+    # Usage for current job: ${{ steps.resources_prefix.outputs.result }}
+    
+    # Login to Azure
+    - name: Azure Login
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}

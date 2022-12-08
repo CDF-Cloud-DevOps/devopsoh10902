@@ -43,13 +43,13 @@ jobs:
         inlineScript: |
           az bicep build --file ./iac/bicep/main.bicep
     # Bicep Validate
-    - name: Bicep Check
+    - name: Bicep Validate
       uses: azure/CLI@v1
       with:
         # azcliversion: 2.30.0
         inlineScript: |
           az deployment sub validate \
-            --name ${{ github.run.id }} \
+            --name ${{ github.run_id }} \
             --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}" \
             --template-file ./iac/bicep/main.bicep \
             --location ${{ secrets.LOCATION }}

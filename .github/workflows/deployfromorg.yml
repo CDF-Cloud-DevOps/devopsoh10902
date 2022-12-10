@@ -32,7 +32,7 @@ jobs:
       
       - uses: Azure/get-keyvault-secrets@v1
         with: 
-          keyvault: "devopsoh25220kv"
+          keyvault: "devopsoh10902kv"
           secrets: 'SQL-PASSWORD'
         id: myGetSecretAction
 

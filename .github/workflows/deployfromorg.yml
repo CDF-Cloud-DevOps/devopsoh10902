@@ -1,0 +1,88 @@
+name: PR-IaC (Bicep) - What-If
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "iac/bicep/**"
+  workflow_dispatch:   
+jobs:
+    Preview:
+      name: "Preview"
+      runs-on: ubuntu-latest
+      steps:
+       
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      # Get RESOURCES_PREFIX based on the repo name
+      - name: Get repo name
+        uses: actions/github-script@v5
+        id: resources_prefix
+        with:
+          result-encoding: string
+          script: return context.repo.repo.toLowerCase()
+       
+      # Log into Azure 
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - uses: Azure/get-keyvault-secrets@v1
+        with: 
+          keyvault: "devopsoh25220kv"
+          secrets: 'SQL-PASSWORD'
+        id: myGetSecretAction
+
+      - name: Preview Changes
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+              az deployment sub what-if \
+                --name ${{ github.run_id }} \
+                --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}" sqlServerAdminPassword="${{ steps.myGetSecretAction.outputs.SQL-PASSWORD }}" \
+                --template-file ./iac/bicep/main.bicep \
+                --location ${{ secrets.LOCATION }}
+            
+    
+    Deployment:
+      runs-on: ubuntu-latest
+      needs: Preview
+      environment: production
+      steps:
+         # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      # Get RESOURCES_PREFIX based on the repo name
+      - name: Get repo name
+        uses: actions/github-script@v5
+        id: resources_prefix
+        with:
+          result-encoding: string
+          script: return context.repo.repo.toLowerCase()
+       
+      # Log into Azure 
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - uses: Azure/get-keyvault-secrets@v1
+        with: 
+          keyvault: "devopsoh25220kv"
+          secrets: 'SQL-PASSWORD'
+        id: myGetSecretAction
+      
+      # Deployment-specific steps
+      - name: Deploy Changes
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+              az deployment sub create \
+                --name ${{ github.run_id }} \
+                --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}"  sqlServerAdminPassword="${{ steps.myGetSecretAction.outputs.SQL-PASSWORD }}" \
+                --template-file ./iac/bicep/main.bicep \
+                --location ${{ secrets.LOCATION }}

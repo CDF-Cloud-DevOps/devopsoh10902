@@ -49,14 +49,16 @@ jobs:
         inlineScript: |
           az deployment sub what-if \
             --name ${{ github.run_id }} \
-            --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}"
+            --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}" \
             --template-file ./iac/bicep/main.bicep \
             --location ${{ secrets.LOCATION }}
+           az logout
           
   Deployment_job:
     name: "Deployment Job for Bicep Infra 1"
     runs-on: ubuntu-latest
     needs: [Preview_job]
+    environment: production
     steps:
     #Checkout Code
     - name: Checkout

@@ -95,7 +95,7 @@ jobs:
         inlineScript: |
           az deployment sub create \
             --name ${{ github.run_id }} \
-            --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}"
+            --parameters resourcesPrefix="${{ steps.resources_prefix.outputs.result }}" \
             --template-file ./iac/bicep/main.bicep \
             --location ${{ secrets.LOCATION }}
            az logout

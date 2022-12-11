@@ -32,7 +32,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-05-01-preview' = {
   name: 'mydrivingDB'
   location: location
   sku: {
-    name: 'S0'
+    name: 'Basic'
   }
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
